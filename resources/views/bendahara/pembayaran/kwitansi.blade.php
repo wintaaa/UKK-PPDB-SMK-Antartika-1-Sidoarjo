@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Kwitansi Pembayaran PPDB</title>
     <style>
@@ -8,41 +9,50 @@
             font-size: 12px;
             line-height: 1.6;
         }
+
         .container {
             width: 80%;
             margin: 0 auto;
             border: 1px solid #ddd;
             padding: 20px;
         }
+
         .header {
             text-align: center;
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+
         .header h1 {
             margin: 0;
             font-size: 24px;
         }
+
         .info-section {
             margin-bottom: 20px;
         }
+
         .info-section p {
             margin: 5px 0;
         }
+
         .info-item {
             display: flex;
             justify-content: space-between;
         }
+
         .signature-section {
             display: flex;
             justify-content: space-between;
             margin-top: 40px;
         }
+
         .signature-box {
             text-align: center;
             width: 45%;
         }
+
         .signature-line {
             height: 1px;
             background-color: #000;
@@ -50,12 +60,14 @@
             margin: 0 auto;
             margin-top: 50px;
         }
+
         .footer {
             text-align: center;
             margin-top: 20px;
             font-size: 10px;
             color: #888;
         }
+
         .terbilang {
             font-style: italic;
             border: 1px dashed #000;
@@ -64,6 +76,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -77,7 +90,7 @@
             <p><strong>Telah terima dari:</strong> {{ $pendaftar->siswa->nama_siswa ?? '-' }}</p>
             <p><strong>Untuk pembayaran:</strong> Biaya Pendaftaran PPDB</p>
             <p><strong>Jumlah uang:</strong> Rp {{ number_format($pendaftar->biaya_pendaftaran, 0, ',', '.') }}</p>
-            
+
             <div class="terbilang">
                 Terbilang: **{{ ucwords(\App\Helpers\NumberToWords::toWords($pendaftar->biaya_pendaftaran)) }} Rupiah**
             </div>
@@ -85,7 +98,7 @@
 
         <div class="info-section">
             <p><strong>Nomor Formulir:</strong> {{ $pendaftar->no_formulir }}</p>
-            <p><strong>Tanggal Pembayaran:</strong> {{ $pendaftar->updated_at->format('d F Y') }}</p>
+            <p><strong>Tanggal Pembayaran:</strong> {{ $pendaftar->tanggal_pembayaran ? \Carbon\Carbon::parse($pendaftar->tanggal_pembayaran)->format('d F Y') : $pendaftar->updated_at->format('d F Y') }}</p>
         </div>
 
         <div class="signature-section">
@@ -107,4 +120,5 @@
     </div>
 
 </body>
+
 </html>

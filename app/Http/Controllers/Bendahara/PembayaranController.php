@@ -15,21 +15,21 @@ class PembayaranController extends Controller
      * Menampilkan dashboard utama bendahara dengan ringkasan statistik.
      */
     public function index()
-{
-    $belumLunas = Pendaftar::where('status_validasi', 'lolos_validasi')
-                           ->where('status_pembayaran', 'belum_lunas')
-                           ->count();
+    {
+        $belumLunas = Pendaftar::where('status_validasi', 'lolos_validasi')
+            ->where('status_pembayaran', 'belum_lunas')
+            ->count();
 
-    $lunas = Pendaftar::where('status_validasi', 'lolos_validasi')
-                      ->where('status_pembayaran', 'lunas')
-                      ->count();
+        $lunas = Pendaftar::where('status_validasi', 'lolos_validasi')
+            ->where('status_pembayaran', 'lunas')
+            ->count();
 
-    $refund = Pendaftar::where('status_validasi', 'lolos_validasi')
-                       ->where('status_pembayaran', 'refund')
-                       ->count();
+        $refund = Pendaftar::where('status_validasi', 'lolos_validasi')
+            ->where('status_pembayaran', 'refund')
+            ->count();
 
-    return view('bendahara.dashboard.index', compact('belumLunas', 'lunas', 'refund'));
-}
+        return view('bendahara.dashboard.index', compact('belumLunas', 'lunas', 'refund'));
+    }
 
     /**
      * Menampilkan daftar pendaftar yang belum melunasi pembayaran.
@@ -37,10 +37,10 @@ class PembayaranController extends Controller
     public function showBelumLunas()
     {
         $pendaftar = Pendaftar::where('status_validasi', 'lolos_validasi')
-                             ->where('status_pembayaran', 'belum_lunas')
-                             ->with('siswa')
-                             ->get();
-                             
+            ->where('status_pembayaran', 'belum_lunas')
+            ->with('siswa')
+            ->get();
+
         return view('bendahara.pembayaran.belum_lunas', compact('pendaftar'));
     }
 
@@ -49,11 +49,12 @@ class PembayaranController extends Controller
      */
     public function showLunas()
     {
+        // dd('ok');
         $pendaftar = Pendaftar::where('status_validasi', 'lolos_validasi')
-                             ->where('status_pembayaran', 'lunas')
-                             ->with('siswa')
-                             ->get();
-                             
+            ->where('status_pembayaran', 'lunas')
+            ->with('siswa')
+            ->get();
+        // dd($pendaftar);
         return view('bendahara.pembayaran.lunas', compact('pendaftar'));
     }
 
@@ -63,8 +64,8 @@ class PembayaranController extends Controller
     public function showRefund()
     {
         $pendaftar = Pendaftar::where('status_pembayaran', 'refund')
-                             ->with('siswa')
-                             ->get();
+            ->with('siswa')
+            ->get();
 
         return view('bendahara.pembayaran.refund_list', compact('pendaftar'));
     }
@@ -75,10 +76,10 @@ class PembayaranController extends Controller
     public function show($id)
     {
         $pendaftar = Pendaftar::with('siswa')->findOrFail($id);
-        
+
         if ($pendaftar->status_validasi !== 'lolos_validasi' || $pendaftar->status_pembayaran !== 'belum_lunas') {
             return redirect()->route('bendahara.dashboard.index')
-                             ->with('error', 'Halaman tidak dapat diakses.');
+                ->with('error', 'Halaman tidak dapat diakses.');
         }
 
         return view('bendahara.pembayaran.show', compact('pendaftar'));
@@ -90,7 +91,7 @@ class PembayaranController extends Controller
     public function prosesPembayaran(Request $request, $id)
     {
         $request->validate([
-            'jumlah_pembayaran' => 'required|numeric|min:0',
+            'jumlah_pembayaran' => 'required|numeric|min:1',
         ]);
 
         try {
@@ -102,6 +103,8 @@ class PembayaranController extends Controller
             }
             $pendaftar->update([
                 'status_pembayaran' => 'lunas',
+                'biaya_pendaftaran' => $request->jumlah_pembayaran,
+                'tanggal_pembayaran' => now(),
             ]);
             DB::commit();
             return redirect()->route('bendahara.dashboard.index')->with('success', 'Pembayaran untuk ' . $pendaftar->siswa->nama_siswa . ' berhasil dicatat.');
@@ -110,7 +113,7 @@ class PembayaranController extends Controller
             return back()->withInput()->withErrors(['error' => 'Gagal memproses pembayaran: ' . $e->getMessage()]);
         }
     }
-    
+
     /**
      * Mencetak kwitansi pembayaran pendaftar.
      */
@@ -136,7 +139,7 @@ class PembayaranController extends Controller
         try {
             DB::beginTransaction();
             $pendaftar = Pendaftar::findOrFail($id);
-            
+
             if ($pendaftar->status_pembayaran !== 'lunas') {
                 DB::rollBack();
                 return back()->with('error', 'Pendaftar tidak bisa di-refund karena belum lunas.');
@@ -145,10 +148,9 @@ class PembayaranController extends Controller
             $pendaftar->update([
                 'status_pembayaran' => 'refund',
             ]);
-            
+
             DB::commit();
             return redirect()->route('bendahara.dashboard.index')->with('success', 'Pengembalian dana untuk ' . $pendaftar->siswa->nama_siswa . ' berhasil dicatat.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal memproses refund: ' . $e->getMessage());

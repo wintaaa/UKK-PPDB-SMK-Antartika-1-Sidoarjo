@@ -14,11 +14,13 @@ class Pendaftar extends Model
     protected $fillable = [
         'no_formulir',
         'email',
-        'tanggal_pendaftaran', // Tambahkan ini
+        'tanggal_pendaftaran',
         'status_formulir',
         'status_validasi',
         'status_pembayaran',
         'status_refund',
+        'biaya_pendaftaran',
+        'tanggal_pembayaran',
     ];
 
     public function siswa()
