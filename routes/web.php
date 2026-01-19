@@ -24,7 +24,12 @@ use App\Http\Controllers\HomeController; // Tambahkan ini
 Auth::routes(); // Rute ini sudah mencakup login dan logout yang aman
 
 // Redirect setelah login
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+Route::get('/', function(){
+    return redirect()->route('home');
+});
+
+Route::get('/home', [HomeController::class, 'index'])->middleware('auth')->name('home');
 
 Route::get('/logout', function () {
     Auth::logout();

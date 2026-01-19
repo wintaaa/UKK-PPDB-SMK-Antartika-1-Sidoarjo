@@ -25,7 +25,7 @@
                         <span class="badge bg-warning text-dark">{{ ucwords(str_replace('_', ' ', $pendaftar->status_pembayaran)) }}</span>
                     </p>
                 </div>
-            </div>
+            </div>e
         </div>
     </div>
 
