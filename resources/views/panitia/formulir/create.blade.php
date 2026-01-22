@@ -61,21 +61,21 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nisn" class="form-label">NISN</label>
-                        <input type="text" class="form-control" id="nisn" name="nisn" value="{{ old('nisn') }}" required>
+                        <input type="text" class="form-control" id="nisn" name="nisn" value="{{ old('nisn') }}" inputmode="numeric" pattern="[0-9]*" maxlength="10" required>
                         @error('nisn')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="nik" class="form-label">NIK</label>
-                        <input type="text" class="form-control" id="nik" name="nik" value="{{ old('nik') }}" required>
+                        <input type="text" class="form-control" id="nik" name="nik" value="{{ old('nik') }}" inputmode="numeric" pattern="[0-9]*" maxlength="16" required>
                         @error('nik')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="npsn_sekolah_asal" class="form-label">NPSN Sekolah Asal</label>
-                        <input type="text" class="form-control" id="npsn_sekolah_asal" name="npsn_sekolah_asal" value="{{ old('npsn_sekolah_asal') }}" required>
+                        <input type="text" class="form-control" id="npsn_sekolah_asal" name="npsn_sekolah_asal" value="{{ old('npsn_sekolah_asal') }}" inputmode="numeric" pattern="[0-9]*" maxlength="8" required>
                         @error('npsn_sekolah_asal')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -103,7 +103,15 @@
                     </div>
                     <div class="col-md-6">
                         <label for="agama" class="form-label">Agama</label>
-                        <input type="text" class="form-control" id="agama" name="agama" value="{{ old('agama') }}" required>
+                        <select class="form-select" id="agama" name="agama" required>
+                            <option value="">Pilih Agama</option>
+                            <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
+                            <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
+                            <option value="Katolik" {{ old('agama') == 'Katolik' ? 'selected' : '' }}>Katolik</option>
+                            <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                            <option value="Buddha" {{ old('agama') == 'Buddha' ? 'selected' : '' }}>Buddha</option>
+                            <option value="Konghucu" {{ old('agama') == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
+                        </select>
                         @error('agama')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -152,7 +160,14 @@
                     </div>
                     <div class="col-md-6">
                         <label for="alat_transportasi" class="form-label">Alat Transportasi</label>
-                        <input type="text" class="form-control" id="alat_transportasi" name="alat_transportasi" value="{{ old('alat_transportasi') }}" required>
+                        <select class="form-select" id="alat_transportasi" name="alat_transportasi" required>
+                            <option value="">Pilih Alat Transportasi</option>
+                            <option value="Motor" {{ old('alat_transportasi') == 'Motor' ? 'selected' : '' }}>Motor</option>
+                            <option value="Mobil" {{ old('alat_transportasi') == 'Mobil' ? 'selected' : '' }}>Mobil</option>
+                            <option value="Sepeda" {{ old('alat_transportasi') == 'Sepeda' ? 'selected' : '' }}>Sepeda</option>
+                            <option value="Bus" {{ old('alat_transportasi') == 'Bus' ? 'selected' : '' }}>Bus</option>
+                            <option value="Angkot" {{ old('alat_transportasi') == 'Angkot' ? 'selected' : '' }}>Angkot</option>
+                        </select>
                         @error('alat_transportasi')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -173,21 +188,28 @@
                     </div>
                     <div class="col-md-6">
                         <label for="jenis_tinggal" class="form-label">Jenis Tinggal</label>
-                        <input type="text" class="form-control" id="jenis_tinggal" name="jenis_tinggal" value="{{ old('jenis_tinggal') }}" required>
+                        <select class="form-select" id="jenis_tinggal" name="jenis_tinggal" required>
+                            <option value="">Pilih Jenis Tinggal</option>
+                            <option value="Rumah" {{ old('jenis_tinggal') == 'Rumah' ? 'selected' : '' }}>Rumah</option>
+                            <option value="Kos" {{ old('jenis_tinggal') == 'Kos' ? 'selected' : '' }}>Kos</option>
+                            <option value="Apartemen" {{ old('jenis_tinggal') == 'Apartemen' ? 'selected' : '' }}>Apartemen</option>
+                            <option value="Kontrakan" {{ old('jenis_tinggal') == 'Kontrakan' ? 'selected' : '' }}>Kontrakan</option>
+                            <option value="Rusun" {{ old('jenis_tinggal') == 'Rusun' ? 'selected' : '' }}>Rusun</option>
+                        </select>
                         @error('jenis_tinggal')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="no_telp_rumah" class="form-label">No. Telp Rumah</label>
-                        <input type="text" class="form-control" id="no_telp_rumah" name="no_telp_rumah" value="{{ old('no_telp_rumah') }}">
+                        <input type="text" class="form-control" id="no_telp_rumah" name="no_telp_rumah" value="{{ old('no_telp_rumah') }}" inputmode="numeric" pattern="[0-9]*">
                         @error('no_telp_rumah')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="no_hp_wa" class="form-label">No. HP (WA)</label>
-                        <input type="text" class="form-control" id="no_hp_wa" name="no_hp_wa" value="{{ old('no_hp_wa') }}" required>
+                        <input type="text" class="form-control" id="no_hp_wa" name="no_hp_wa" value="{{ old('no_hp_wa') }}" inputmode="numeric" pattern="[0-9]*" required>
                         @error('no_hp_wa')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -213,28 +235,53 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nik_ayah" class="form-label">NIK Ayah</label>
-                        <input type="text" class="form-control" id="nik_ayah" name="nik_ayah" value="{{ old('nik_ayah') }}" required>
+                        <input type="text" class="form-control" id="nik_ayah" name="nik_ayah" value="{{ old('nik_ayah') }}" inputmode="numeric" pattern="[0-9]*" maxlength="16" required>
                         @error('nik_ayah')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="pendidikan_ayah" class="form-label">Pendidikan Ayah</label>
-                        <input type="text" class="form-control" id="pendidikan_ayah" name="pendidikan_ayah" value="{{ old('pendidikan_ayah') }}" required>
+                        <select class="form-select" id="pendidikan_ayah" name="pendidikan_ayah" required>
+                            <option value="">Pilih Pendidikan Ayah</option>
+                            <option value="SD" {{ old('pendidikan_ayah') == 'SD' ? 'selected' : '' }}>SD</option>
+                            <option value="SMP" {{ old('pendidikan_ayah') == 'SMP' ? 'selected' : '' }}>SMP</option>
+                            <option value="SMA/K" {{ old('pendidikan_ayah') == 'SMA/K' ? 'selected' : '' }}>SMA/K</option>
+                            <option value="D3" {{ old('pendidikan_ayah') == 'D3' ? 'selected' : '' }}>D3</option>
+                            <option value="D4" {{ old('pendidikan_ayah') == 'D4' ? 'selected' : '' }}>D4</option>
+                            <option value="S1" {{ old('pendidikan_ayah') == 'S1' ? 'selected' : '' }}>S1</option>
+                            <option value="S2" {{ old('pendidikan_ayah') == 'S2' ? 'selected' : '' }}>S2</option>
+                            <option value="S3" {{ old('pendidikan_ayah') == 'S3' ? 'selected' : '' }}>S3</option>
+                        </select>
                         @error('pendidikan_ayah')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="pekerjaan_ayah" class="form-label">Pekerjaan Ayah</label>
-                        <input type="text" class="form-control" id="pekerjaan_ayah" name="pekerjaan_ayah" value="{{ old('pekerjaan_ayah') }}" required>
+                        <select class="form-select" id="pekerjaan_ayah" name="pekerjaan_ayah" required>
+                            <option value="">Pilih Pekerjaan Ayah</option>
+                            <option value="Karyawan Swasta" {{ old('pekerjaan_ayah') == 'Karyawan Swasta' ? 'selected' : '' }}>Karyawan Swasta</option>
+                            <option value="Usaha Rumahan" {{ old('pekerjaan_ayah') == 'Usaha Rumahan' ? 'selected' : '' }}>Usaha Rumahan</option>
+                            <option value="Buruh" {{ old('pekerjaan_ayah') == 'Buruh' ? 'selected' : '' }}>Buruh</option>
+                            <option value="TNI/Polri" {{ old('pekerjaan_ayah') == 'TNI/Polri' ? 'selected' : '' }}>TNI/Polri</option>
+                            <option value="Guru/Dosen" {{ old('pekerjaan_ayah') == 'Guru/Dosen' ? 'selected' : '' }}>Guru/Dosen</option>
+                            <option value="Pedagang" {{ old('pekerjaan_ayah') == 'Pedagang' ? 'selected' : '' }}>Pedagang</option>
+                            <option value="Pengusaha" {{ old('pekerjaan_ayah') == 'Pengusaha' ? 'selected' : '' }}>Pengusaha</option>
+                            <option value="Dokter" {{ old('pekerjaan_ayah') == 'Dokter' ? 'selected' : '' }}>Dokter</option>
+                            <option value="Nelayan" {{ old('pekerjaan_ayah') == 'Nelayan' ? 'selected' : '' }}>Nelayan</option>
+                            <option value="Petani" {{ old('pekerjaan_ayah') == 'Petani' ? 'selected' : '' }}>Petani</option>
+                            <option value="Bisnis Rental" {{ old('pekerjaan_ayah') == 'Bisnis Rental' ? 'selected' : '' }}>Bisnis Rental</option>
+                            <option value="Pertukangan" {{ old('pekerjaan_ayah') == 'Pertukangan' ? 'selected' : '' }}>Pertukangan</option>
+                            <option value="Peternak" {{ old('pekerjaan_ayah') == 'Peternak' ? 'selected' : '' }}>Peternak</option>
+                        </select>
                         @error('pekerjaan_ayah')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="penghasilan_ayah" class="form-label">Penghasilan Bulanan Ayah</label>
-                        <input type="text" class="form-control" id="penghasilan_ayah" name="penghasilan_ayah" value="{{ old('penghasilan_ayah') }}" required>
+                        <input type="text" class="form-control" id="penghasilan_ayah" name="penghasilan_ayah" value="{{ old('penghasilan_ayah') }}" inputmode="numeric" pattern="[0-9]*" required>
                         @error('penghasilan_ayah')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -260,28 +307,48 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nik_ibu" class="form-label">NIK Ibu</label>
-                        <input type="text" class="form-control" id="nik_ibu" name="nik_ibu" value="{{ old('nik_ibu') }}" required>
+                        <input type="text" class="form-control" id="nik_ibu" name="nik_ibu" value="{{ old('nik_ibu') }}" inputmode="numeric" pattern="[0-9]*" maxlength="16" required>
                         @error('nik_ibu')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="pendidikan_ibu" class="form-label">Pendidikan Ibu</label>
-                        <input type="text" class="form-control" id="pendidikan_ibu" name="pendidikan_ibu" value="{{ old('pendidikan_ibu') }}" required>
+                        <select class="form-select" id="pendidikan_ibu" name="pendidikan_ibu" required>
+                            <option value="">Pilih Pendidikan Ibu</option>
+                            <option value="SD" {{ old('pendidikan_ibu') == 'SD' ? 'selected' : '' }}>SD</option>
+                            <option value="SMP" {{ old('pendidikan_ibu') == 'SMP' ? 'selected' : '' }}>SMP</option>
+                            <option value="SMA/K" {{ old('pendidikan_ibu') == 'SMA/K' ? 'selected' : '' }}>SMA/K</option>
+                            <option value="D3" {{ old('pendidikan_ibu') == 'D3' ? 'selected' : '' }}>D3</option>
+                            <option value="D4" {{ old('pendidikan_ibu') == 'D4' ? 'selected' : '' }}>D4</option>
+                            <option value="S1" {{ old('pendidikan_ibu') == 'S1' ? 'selected' : '' }}>S1</option>
+                            <option value="S2" {{ old('pendidikan_ibu') == 'S2' ? 'selected' : '' }}>S2</option>
+                            <option value="S3" {{ old('pendidikan_ibu') == 'S3' ? 'selected' : '' }}>S3</option>
+                        </select>
                         @error('pendidikan_ibu')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="pekerjaan_ibu" class="form-label">Pekerjaan Ibu</label>
-                        <input type="text" class="form-control" id="pekerjaan_ibu" name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu') }}" required>
+                        <select class="form-select" id="pekerjaan_ibu" name="pekerjaan_ibu" required>
+                            <option value="">Pilih Pekerjaan Ibu</option>
+                            <option value="Ibu Rumah Tangga" {{ old('pekerjaan_ibu') == 'Ibu Rumah Tangga' ? 'selected' : '' }}>Ibu Rumah Tangga</option>
+                            <option value="Karyawan Swasta" {{ old('pekerjaan_ibu') == 'Karyawan Swasta' ? 'selected' : '' }}>Karyawan Swasta</option>
+                            <option value="Katering" {{ old('pekerjaan_ibu') == 'Katering' ? 'selected' : '' }}>Katering</option>
+                            <option value="Guru Les/Privat" {{ old('pekerjaan_ibu') == 'Guru Les/Privat' ? 'selected' : '' }}>Guru Les/Privat</option>
+                            <option value="MUA" {{ old('pekerjaan_ibu') == 'MUA' ? 'selected' : '' }}>MUA</option>
+                            <option value="Jasa Menjahit" {{ old('pekerjaan_ibu') == 'Jasa Menjahit' ? 'selected' : '' }}>Jasa Menjahit</option>
+                            <option value="Usaha Laundry" {{ old('pekerjaan_ibu') == 'Usaha Laundry' ? 'selected' : '' }}>Usaha Laundry</option>
+                            <option value="Bisnis Kue dan Roti" {{ old('pekerjaan_ibu') == 'Bisnis Kue dan Roti' ? 'selected' : '' }}>Bisnis Kue dan Roti</option>
+                        </select>
                         @error('pekerjaan_ibu')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="penghasilan_ibu" class="form-label">Penghasilan Bulanan Ibu</label>
-                        <input type="text" class="form-control" id="penghasilan_ibu" name="penghasilan_ibu" value="{{ old('penghasilan_ibu') }}" required>
+                        <input type="text" class="form-control" id="penghasilan_ibu" name="penghasilan_ibu" value="{{ old('penghasilan_ibu') }}" inputmode="numeric" pattern="[0-9]*" required>
                         @error('penghasilan_ibu')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -307,21 +374,53 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nik_wali" class="form-label">NIK Wali</label>
-                        <input type="text" class="form-control" id="nik_wali" name="nik_wali" value="{{ old('nik_wali') }}">
+                        <input type="text" class="form-control" id="nik_wali" name="nik_wali" value="{{ old('nik_wali') }}" inputmode="numeric" pattern="[0-9]*" maxlength="16">
                         @error('nik_wali')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="pendidikan_wali" class="form-label">Pendidikan Wali</label>
-                        <input type="text" class="form-control" id="pendidikan_wali" name="pendidikan_wali" value="{{ old('pendidikan_wali') }}">
+                        <select class="form-select" id="pendidikan_wali" name="pendidikan_wali">
+                            <option value="">Pilih Pendidikan Wali</option>
+                            <option value="SD" {{ old('pendidikan_wali') == 'SD' ? 'selected' : '' }}>SD</option>
+                            <option value="SMP" {{ old('pendidikan_wali') == 'SMP' ? 'selected' : '' }}>SMP</option>
+                            <option value="SMA/K" {{ old('pendidikan_wali') == 'SMA/K' ? 'selected' : '' }}>SMA/K</option>
+                            <option value="D3" {{ old('pendidikan_wali') == 'D3' ? 'selected' : '' }}>D3</option>
+                            <option value="D4" {{ old('pendidikan_wali') == 'D4' ? 'selected' : '' }}>D4</option>
+                            <option value="S1" {{ old('pendidikan_wali') == 'S1' ? 'selected' : '' }}>S1</option>
+                            <option value="S2" {{ old('pendidikan_wali') == 'S2' ? 'selected' : '' }}>S2</option>
+                            <option value="S3" {{ old('pendidikan_wali') == 'S3' ? 'selected' : '' }}>S3</option>
+                        </select>
                         @error('pendidikan_wali')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label for="pekerjaan_wali" class="form-label">Pekerjaan Wali</label>
-                        <input type="text" class="form-control" id="pekerjaan_wali" name="pekerjaan_wali" value="{{ old('pekerjaan_wali') }}">
+                        <select class="form-select" id="pekerjaan_wali" name="pekerjaan_wali">
+                            <option value="">Pilih Pekerjaan Wali</option>
+                            <option value="Karyawan Swasta" {{ old('pekerjaan_wali') == 'Karyawan Swasta' ? 'selected' : '' }}>Karyawan Swasta</option>
+                            <option value="Usaha Rumahan" {{ old('pekerjaan_wali') == 'Usaha Rumahan' ? 'selected' : '' }}>Usaha Rumahan</option>
+                            <option value="Buruh" {{ old('pekerjaan_wali') == 'Buruh' ? 'selected' : '' }}>Buruh</option>
+                            <option value="TNI/Polri" {{ old('pekerjaan_wali') == 'TNI/Polri' ? 'selected' : '' }}>TNI/Polri</option>
+                            <option value="Guru/Dosen" {{ old('pekerjaan_wali') == 'Guru/Dosen' ? 'selected' : '' }}>Guru/Dosen</option>
+                            <option value="Pedagang" {{ old('pekerjaan_wali') == 'Pedagang' ? 'selected' : '' }}>Pedagang</option>
+                            <option value="Pengusaha" {{ old('pekerjaan_wali') == 'Pengusaha' ? 'selected' : '' }}>Pengusaha</option>
+                            <option value="Dokter" {{ old('pekerjaan_wali') == 'Dokter' ? 'selected' : '' }}>Dokter</option>
+                            <option value="Nelayan" {{ old('pekerjaan_wali') == 'Nelayan' ? 'selected' : '' }}>Nelayan</option>
+                            <option value="Petani" {{ old('pekerjaan_wali') == 'Petani' ? 'selected' : '' }}>Petani</option>
+                            <option value="Bisnis Rental" {{ old('pekerjaan_wali') == 'Bisnis Rental' ? 'selected' : '' }}>Bisnis Rental</option>
+                            <option value="Pertukangan" {{ old('pekerjaan_wali') == 'Pertukangan' ? 'selected' : '' }}>Pertukangan</option>
+                            <option value="Peternak" {{ old('pekerjaan_wali') == 'Peternak' ? 'selected' : '' }}>Peternak</option>
+                            <option value="Ibu Rumah Tangga" {{ old('pekerjaan_wali') == 'Ibu Rumah Tangga' ? 'selected' : '' }}>Ibu Rumah Tangga</option>
+                            <option value="Katering" {{ old('pekerjaan_wali') == 'Katering' ? 'selected' : '' }}>Katering</option>
+                            <option value="Guru Les/Privat" {{ old('pekerjaan_wali') == 'Guru Les/Privat' ? 'selected' : '' }}>Guru Les/Privat</option>
+                            <option value="MUA" {{ old('pekerjaan_wali') == 'MUA' ? 'selected' : '' }}>MUA</option>
+                            <option value="Jasa Menjahit" {{ old('pekerjaan_wali') == 'Jasa Menjahit' ? 'selected' : '' }}>Jasa Menjahit</option>
+                            <option value="Usaha Laundry" {{ old('pekerjaan_wali') == 'Usaha Laundry' ? 'selected' : '' }}>Usaha Laundry</option>
+                            <option value="Bisnis Kue dan Roti" {{ old('pekerjaan_wali') == 'Bisnis Kue dan Roti' ? 'selected' : '' }}>Bisnis Kue dan Roti</option>
+                        </select>
                         @error('pekerjaan_wali')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -424,5 +523,37 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Fungsi untuk validasi input hanya angka
+    function allowOnlyNumbers(event) {
+        const key = event.key;
+        // Izinkan: digits (0-9), backspace, delete, tab, escape, enter
+        if (!/[0-9]/.test(key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(key)) {
+            event.preventDefault();
+        }
+    }
+
+    // Fungsi untuk menghapus karakter non-angka
+    function removeNonNumbers(element) {
+        element.value = element.value.replace(/[^0-9]/g, '');
+    }
+
+    // Daftar field yang hanya menerima angka
+    const numericFields = ['nisn', 'nik', 'npsn_sekolah_asal', 'nik_ayah', 'nik_ibu', 'nik_wali', 'no_telp_rumah', 'no_hp_wa', 'penghasilan_ayah', 'penghasilan_ibu'];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        numericFields.forEach(fieldId => {
+            const element = document.getElementById(fieldId);
+            if (element) {
+                // Tambahkan event listener untuk keypress
+                element.addEventListener('keypress', allowOnlyNumbers);
+                // Tambahkan event listener untuk input (paste, dll)
+                element.addEventListener('input', function() {
+                    removeNonNumbers(this);
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>

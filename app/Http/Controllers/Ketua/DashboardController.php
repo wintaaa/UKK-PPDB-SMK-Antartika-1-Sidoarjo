@@ -34,7 +34,7 @@ class DashboardController extends Controller
         
         // Menghitung jumlah formulir berdasarkan status
         $formulirKeluar = Pendaftar::where('status_formulir', 'keluar')->count();
-        $formulirKembali = Pendaftar::where('status_formulir', 'kembali')->count();
+        $formulirKembali = Pendaftar::where('status_formulir', 'sudah_kembali')->count();
         
         // Menghitung jumlah pendaftar yang lolos validasi dan pembayaran lunas
         $pendaftarLolos = Pendaftar::where('status_validasi', 'lolos_validasi')->count();

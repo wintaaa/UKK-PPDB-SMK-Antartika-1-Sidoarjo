@@ -46,15 +46,15 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nisn" class="form-label">NISN</label>
-                        <input type="text" class="form-control" id="nisn" name="nisn" required>
+                        <input type="text" class="form-control" id="nisn" name="nisn" inputmode="numeric" pattern="[0-9]*" required>
                     </div>
                     <div class="col-md-6">
                         <label for="nik" class="form-label">NIK</label>
-                        <input type="text" class="form-control" id="nik" name="nik" required>
+                        <input type="text" class="form-control" id="nik" name="nik" inputmode="numeric" pattern="[0-9]*" required>
                     </div>
                     <div class="col-md-6">
                         <label for="npsn_sekolah_asal" class="form-label">NPSN Sekolah Asal</label>
-                        <input type="text" class="form-control" id="npsn_sekolah_asal" name="npsn_sekolah_asal" required>
+                        <input type="text" class="form-control" id="npsn_sekolah_asal" name="npsn_sekolah_asal" inputmode="numeric" pattern="[0-9]*" required>
                     </div>
                     <div class="col-md-6">
                         <label for="nama_sekolah_asal" class="form-label">Nama Sekolah Asal</label>
@@ -135,7 +135,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nik_ayah" class="form-label">NIK Ayah</label>
-                        <input type="text" class="form-control" id="nik_ayah" name="nik_ayah" required>
+                        <input type="text" class="form-control" id="nik_ayah" name="nik_ayah" inputmode="numeric" pattern="[0-9]*" required>
                     </div>
                     <div class="col-md-6">
                         <label for="pendidikan_ayah" class="form-label">Pendidikan Ayah</label>
@@ -164,7 +164,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nik_ibu" class="form-label">NIK Ibu</label>
-                        <input type="text" class="form-control" id="nik_ibu" name="nik_ibu" required>
+                        <input type="text" class="form-control" id="nik_ibu" name="nik_ibu" inputmode="numeric" pattern="[0-9]*" required>
                     </div>
                     <div class="col-md-6">
                         <label for="pendidikan_ibu" class="form-label">Pendidikan Ibu</label>
@@ -193,7 +193,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="nik_wali" class="form-label">NIK Wali</label>
-                        <input type="text" class="form-control" id="nik_wali" name="nik_wali">
+                        <input type="text" class="form-control" id="nik_wali" name="nik_wali" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="col-md-6">
                         <label for="pendidikan_wali" class="form-label">Pendidikan Wali</label>
@@ -255,5 +255,60 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Tunggu hingga DOM sepenuhnya dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validasi input untuk NISN, NIK, NPSN (hanya angka)
+        const numericFields = ['nisn', 'nik', 'npsn_sekolah_asal', 'nik_ayah', 'nik_ibu', 'nik_wali'];
+        
+        numericFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                // Prevent non-numeric input on keypress
+                field.addEventListener('keypress', function(e) {
+                    const char = String.fromCharCode(e.which);
+                    if (!/[0-9]/.test(char)) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+                
+                // Prevent non-numeric input on keydown (untuk special characters)
+                field.addEventListener('keydown', function(e) {
+                    // Allow: backspace, delete, tab, escape, enter
+                    if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X, Cmd+A, Cmd+C, Cmd+V, Cmd+X
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        (e.keyCode === 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        (e.keyCode === 86 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        (e.keyCode === 88 && (e.ctrlKey === true || e.metaKey === true))) {
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+                
+                // Prevent paste of non-numeric content
+                field.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                    if (/^[0-9]*$/.test(pastedText)) {
+                        this.value += pastedText;
+                    } else {
+                        alert('Hanya angka yang diperbolehkan untuk field ini');
+                    }
+                });
+                
+                // Clean up any non-numeric characters on input
+                field.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>
