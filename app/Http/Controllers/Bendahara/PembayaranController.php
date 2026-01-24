@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bendahara;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pendaftar;
+use App\Models\CicilanPembayaran;
 use Illuminate\Support\Facades\Auth;
 use PDF;
 use Illuminate\Support\Facades\DB;
@@ -86,7 +87,7 @@ class PembayaranController extends Controller
     }
 
     /**
-     * Memproses pembayaran pendaftar.
+     * Memproses pembayaran pendaftar (untuk pembayaran penuh atau cicilan pertama).
      */
     public function prosesPembayaran(Request $request, $id)
     {
@@ -97,17 +98,74 @@ class PembayaranController extends Controller
         try {
             DB::beginTransaction();
             $pendaftar = Pendaftar::with('siswa')->findOrFail($id);
+            
             if ($pendaftar->status_pembayaran === 'lunas') {
                 DB::rollBack();
                 return back()->with('error', 'Pembayaran sudah lunas sebelumnya.');
             }
+
+            // Jika biaya jurusan belum tersimpan, ambil dari jurusan
+            if ($pendaftar->biaya_jurusan == 0) {
+                $siswa = $pendaftar->siswa;
+                if ($siswa) {
+                    $jurusan = \App\Models\Jurusan::where('nama_jurusan', $siswa->pilihan_jurusan)->first();
+                    if ($jurusan) {
+                        $pendaftar->update([
+                            'biaya_jurusan' => $jurusan->biaya_pendaftaran,
+                            'sisa_pembayaran' => $jurusan->biaya_pendaftaran - $pendaftar->total_terbayar,
+                        ]);
+                    }
+                }
+            }
+
+            // Ambil input dari form, lalu buang semua karakter selain angka
+            $nominalBersih = preg_replace('/[^0-9]/', '', $request->jumlah_pembayaran);
+            $jumlahPembayaran = (int)$nominalBersih;
+            $sisaPembayaran = $pendaftar->calculateSisaPembayaran();
+
+            // Validasi jumlah pembayaran tidak lebih dari sisa pembayaran
+            if ($jumlahPembayaran > $sisaPembayaran) {
+                DB::rollBack();
+                return back()->withInput()->withErrors([
+                    'jumlah_pembayaran' => 'Jumlah pembayaran tidak boleh lebih dari sisa pembayaran (Rp ' . number_format($sisaPembayaran, 0, ',', '.') . ')'
+                ]);
+            }
+
+            // Simpan sebagai cicilan pertama
+            CicilanPembayaran::create([
+                'pendaftar_id' => $pendaftar->id,
+                'jumlah_cicilan' => (int)$jumlahPembayaran,
+                'tanggal_pembayaran' => now(),
+                'status' => 'pending',
+            ]);
+
+            // Refresh model untuk mendapatkan data terbaru dari database
+            $pendaftar->refresh();
+
+            // Update total terbayar dan sisa pembayaran
+            $totalTerbayar = $pendaftar->calculateTotalTerbayar();
+            $sisaBayar = $pendaftar->calculateSisaPembayaran();
+
+            // Tentukan status pembayaran
+            $statusPembayaran = $totalTerbayar >= $pendaftar->biaya_jurusan ? 'lunas' : 'belum_lunas';
+
             $pendaftar->update([
-                'status_pembayaran' => 'lunas',
-                'biaya_pendaftaran' => $request->jumlah_pembayaran,
+                'total_terbayar' => $totalTerbayar,
+                'sisa_pembayaran' => $sisaBayar,
+                'status_pembayaran' => $statusPembayaran,
                 'tanggal_pembayaran' => now(),
             ]);
+
             DB::commit();
-            return redirect()->route('bendahara.dashboard.index')->with('success', 'Pembayaran untuk ' . $pendaftar->siswa->nama_siswa . ' berhasil dicatat.');
+            
+            $pesan = 'Pembayaran untuk ' . $pendaftar->siswa->nama_siswa . ' berhasil dicatat. ';
+            if ($totalTerbayar >= $pendaftar->biaya_jurusan) {
+                $pesan .= 'Status: LUNAS';
+            } else {
+                $pesan .= 'Status: Cicilan (' . $pendaftar->getPersentasePembayaran() . '% dari total biaya)';
+            }
+            
+            return redirect()->route('bendahara.pembayaran.show', $id)->with('success', $pesan);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->withErrors(['error' => 'Gagal memproses pembayaran: ' . $e->getMessage()]);

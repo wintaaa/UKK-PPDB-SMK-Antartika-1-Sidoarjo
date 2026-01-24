@@ -478,16 +478,64 @@
                 <h4 class="mt-5 mb-3 border-bottom pb-2">F. Pilihan Jurusan</h4>
                 <div class="mb-3">
                     <label for="jurusan_id" class="form-label">Pilihan Jurusan</label>
-                    <select class="form-select" id="jurusan_id" name="jurusan_id" required>
+                    <select class="form-select" id="jurusan_id" name="jurusan_id" required onchange="updateJurusanInfo()">
                         <option value="">Pilih Jurusan</option>
                         @foreach ($jurusan as $j)
-                            <option value="{{ $j->id }}" {{ old('jurusan_id') == $j->id ? 'selected' : '' }}>{{ $j->nama_jurusan }}</option>
+                            <option value="{{ $j->id }}" 
+                                    data-slot="{{ $j->slot_tersisa }}"
+                                    data-status="{{ $j->status_slot }}"
+                                    data-harga="{{ $j->biaya_pendaftaran }}"
+                                    {{ old('jurusan_id') == $j->id ? 'selected' : '' }}>
+                                {{ $j->nama_jurusan }} (Slot: {{ $j->slot_tersisa }}/36)
+                                @if ($j->status_slot === 'Penuh')
+                                    - PENUH
+                                @endif
+                            </option>
                         @endforeach
                     </select>
                     @error('jurusan_id')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
+                    <small id="slot-info" class="form-text text-muted d-block mt-2"></small>
+                    <small id="harga-info" class="form-text text-muted d-block mt-2"></small>
                 </div>
+
+                <script>
+                    function updateJurusanInfo() {
+                        const select = document.getElementById('jurusan_id');
+                        const selectedOption = select.options[select.selectedIndex];
+                        const slotInfo = document.getElementById('slot-info');
+                        const hargaInfo = document.getElementById('harga-info');
+                        
+                        if (selectedOption.value === '') {
+                            slotInfo.textContent = '';
+                            hargaInfo.textContent = '';
+                            return;
+                        }
+                        
+                        const slot = selectedOption.getAttribute('data-slot');
+                        const status = selectedOption.getAttribute('data-status');
+                        const harga = selectedOption.getAttribute('data-harga');
+                        
+                        // Update slot info
+                        if (status === 'Penuh') {
+                            slotInfo.innerHTML = '<span class="badge bg-danger">Slot Penuh!</span>';
+                            select.classList.add('is-invalid');
+                        } else {
+                            slotInfo.innerHTML = '<span class="badge bg-success">Slot Tersedia: ' + slot + '/36</span>';
+                            select.classList.remove('is-invalid');
+                        }
+                        
+                        // Update harga info
+                        const hargaFormatted = new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0
+                        }).format(harga);
+                        
+                        hargaInfo.innerHTML = '<strong>Biaya Pendaftaran:</strong> <span class="badge bg-info text-dark">' + hargaFormatted + '</span>';
+                    }
+                </script>
                 
                 {{-- Fitur Checklist (Hanya untuk Tampilan, akan divalidasi manual) --}}
                 <h4 class="mt-5 mb-3 border-bottom pb-2">G. Kelengkapan Dokumen</h4>

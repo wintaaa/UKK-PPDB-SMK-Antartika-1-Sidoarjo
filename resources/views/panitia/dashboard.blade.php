@@ -49,6 +49,9 @@
                 <a href="{{ route('panitia.cetak.formulir') }}" class="btn btn-lg btn-outline-info m-2">
                     <i class="fas fa-print d-block mb-2"></i> Cetak Formulir
                 </a>
+                <a href="{{ route('panitia.pricing.index') }}" class="btn btn-lg btn-outline-warning m-2">
+                    <i class="fas fa-money-bill d-block mb-2"></i> Kelola Harga
+                </a>
             </div>
         </div>
     </div>

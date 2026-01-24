@@ -49,4 +49,9 @@ class Siswa extends Model
     {
         return $this->belongsTo(Pendaftar::class);
     }
+
+    public function jurusan()
+    {
+        return $this->belongsTo(Jurusan::class, 'pilihan_jurusan', 'nama_jurusan');
+    }
 }

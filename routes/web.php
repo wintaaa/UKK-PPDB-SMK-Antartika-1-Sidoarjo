@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Panitia\FormulirController;
 use App\Http\Controllers\Panitia\PendaftaranController;
 use App\Http\Controllers\Panitia\ValidasiController; 
+use App\Http\Controllers\Panitia\JurusanPricingController;
 use App\Http\Controllers\Bendahara\PembayaranController;
+use App\Http\Controllers\Bendahara\CicilanController;
 use App\Http\Controllers\Ketua\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Panitia\DashboardPanitiaController;
@@ -57,6 +59,13 @@ Route::middleware('auth')->prefix('panitia')->name('panitia.')->group(function (
 
     // Rute untuk mencetak formulir
     Route::get('/cetak-formulir', [FormulirController::class, 'cetak'])->name('cetak.formulir');
+
+    // Rute untuk mengelola harga jurusan
+    Route::prefix('pricing')->name('pricing.')->group(function () {
+        Route::get('/', [JurusanPricingController::class, 'index'])->name('index');
+        Route::get('/{jurusan}/edit', [JurusanPricingController::class, 'edit'])->name('edit');
+        Route::put('/{jurusan}', [JurusanPricingController::class, 'update'])->name('update');
+    });
 });
 // Perbaikan Rute Bendahara**
 Route::middleware('auth')->prefix('bendahara')->name('bendahara.')->group(function () {
@@ -84,6 +93,15 @@ Route::middleware('auth')->prefix('bendahara')->name('bendahara.')->group(functi
     
     // Rute untuk memproses refund
     Route::post('/pembayaran/{pendaftar}/proses-refund', [PembayaranController::class, 'prosesRefund'])->name('pembayaran.refund');
+
+    // Rute untuk cicilan pembayaran
+    Route::prefix('cicilan')->name('cicilan.')->group(function () {
+        Route::get('/{pendaftar}/create', [CicilanController::class, 'create'])->name('create');
+        Route::post('/{pendaftar}', [CicilanController::class, 'store'])->name('store');
+        Route::get('/{pendaftar}/history', [CicilanController::class, 'history'])->name('history');
+        Route::post('/{pendaftar}/cicilan/{cicilan}/approve', [CicilanController::class, 'approveCicilan'])->name('approve');
+        Route::post('/{pendaftar}/cicilan/{cicilan}/reject', [CicilanController::class, 'rejectCicilan'])->name('reject');
+    });
 });
 
 // Rute Ketua/Admin (Memerlukan autentikasi)

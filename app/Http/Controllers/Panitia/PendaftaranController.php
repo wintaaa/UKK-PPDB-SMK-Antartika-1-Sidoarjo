@@ -8,6 +8,7 @@ use App\Models\Pendaftar;
 use App\Models\Siswa;
 use App\Models\DataOrangTua;
 use App\Models\DataWali;
+use App\Models\Jurusan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,13 +21,16 @@ class PendaftaranController extends Controller
     {
         $pendaftar = Pendaftar::where('no_formulir', $no_formulir)->firstOrFail();
         
-        $jurusan = [
-            (object)['id' => 1, 'nama_jurusan' => 'Teknik Pemesinan'],
-            (object)['id' => 2, 'nama_jurusan' => 'Teknik Kendaraan Ringan'],
-            (object)['id' => 3, 'nama_jurusan' => 'Rekayasa Perangkat Lunak'],
-            (object)['id' => 4, 'nama_jurusan' => 'Teknik Instalasi Tenaga Listrik'],
-            (object)['id' => 5, 'nama_jurusan' => 'Teknik Elektronika Industri'],
-        ];
+        // Ambil data jurusan dari database dengan info slot tersisa dan harga
+        $jurusan = Jurusan::all()->map(function($j) {
+            return (object)[
+                'id' => $j->id,
+                'nama_jurusan' => $j->nama_jurusan,
+                'slot_tersisa' => $j->getAvailableSlots(),
+                'status_slot' => $j->hasAvailableSlot() ? 'Tersedia' : 'Penuh',
+                'biaya_pendaftaran' => $j->biaya_pendaftaran,
+            ];
+        });
 
         return view('panitia.formulir.create', compact('pendaftar', 'jurusan'));
     }
@@ -64,7 +68,7 @@ class PendaftaranController extends Controller
             'berat_badan' => 'required|numeric',
             'jarak_tempuh' => 'required|numeric',
             'waktu_tempuh' => 'required|integer',
-            'jurusan_id' => 'required|integer',
+            'jurusan_id' => 'required|integer|exists:jurusan,id',
             
             // Validasi untuk data orang tua
             'nama_ayah' => 'required|string',
@@ -94,7 +98,14 @@ class PendaftaranController extends Controller
             
             $pendaftar = Pendaftar::where('no_formulir', $request->no_formulir)->firstOrFail();
 
-            $namaJurusan = $this->getJurusanNameById($request->jurusan_id);
+            // Cek apakah jurusan masih memiliki slot
+            $jurusanData = Jurusan::findOrFail($request->jurusan_id);
+            
+            if (!$jurusanData->hasAvailableSlot()) {
+                return back()->withInput()->withErrors(['jurusan_id' => 'Slot untuk jurusan ' . $jurusanData->nama_jurusan . ' sudah penuh. Silakan pilih jurusan lain.']);
+            }
+
+            $namaJurusan = $jurusanData->nama_jurusan;
 
             Siswa::create(array_merge($request->only([
                 'nama_siswa', 'jenis_kelamin', 'nisn', 'nik', 'npsn_sekolah_asal', 
@@ -111,6 +122,9 @@ class PendaftaranController extends Controller
                 'akta_kelahiran' => false,
                 'foto' => false,
             ]));
+
+            // Kurangi slot jurusan yang tersedia
+            $jurusanData->increment('terdaftar');
 
             DataOrangTua::create(array_merge($request->only([
                 'nama_ayah', 'tahun_lahir_ayah', 'nik_ayah', 'pendidikan_ayah', 
@@ -129,11 +143,13 @@ class PendaftaranController extends Controller
                 ]));
             }
 
-            // Perbarui status pendaftar
+            // Perbarui status pendaftar dengan biaya jurusan
             $pendaftar->update([
                 'status_formulir' => 'sudah_kembali',
                 'status_validasi' => 'belum_validasi',
                 'status_pembayaran' => 'belum_lunas',
+                'biaya_jurusan' => $jurusanData->biaya_pendaftaran,
+                'sisa_pembayaran' => $jurusanData->biaya_pendaftaran,
             ]);
 
             DB::commit();
@@ -147,15 +163,4 @@ class PendaftaranController extends Controller
         }
     }
 
-    private function getJurusanNameById($id)
-    {
-        $jurusan = [
-            1 => 'Teknik Pemesinan',
-            2 => 'Teknik Kendaraan Ringan',
-            3 => 'Rekayasa Perangkat Lunak',
-            4 => 'Teknik Instalasi Tenaga Listrik',
-            5 => 'Teknik Elektronika Industri',
-        ];
-        return $jurusan[$id] ?? 'Tidak Diketahui';
-    }
 }
