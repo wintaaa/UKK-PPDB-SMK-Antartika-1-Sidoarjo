@@ -28,15 +28,14 @@ class CicilanController extends Controller
     /**
      * Menyimpan cicilan pembayaran
      */
-    public function store(Request $request, $id)
+public function store(Request $request, $id)
     {
+        // 1. Validasi Input (Hapus 'numeric' agar tidak error saat ada titik/koma)
         $request->validate([
-            'jumlah_cicilan' => 'required|numeric|min:1',
+            'jumlah_cicilan' => 'required', 
             'keterangan' => 'nullable|string|max:255',
         ], [
             'jumlah_cicilan.required' => 'Jumlah cicilan harus diisi',
-            'jumlah_cicilan.numeric' => 'Jumlah cicilan harus berupa angka',
-            'jumlah_cicilan.min' => 'Jumlah cicilan minimal Rp 1',
         ]);
 
         try {
@@ -44,74 +43,60 @@ class CicilanController extends Controller
 
             $pendaftar = Pendaftar::findOrFail($id);
             
-            // Jika biaya jurusan belum tersimpan, ambil dari jurusan
-            if ($pendaftar->biaya_jurusan == 0) {
-                $siswa = $pendaftar->siswa;
-                if ($siswa) {
-                    $jurusan = \App\Models\Jurusan::where('nama_jurusan', $siswa->pilihan_jurusan)->first();
-                    if ($jurusan) {
-                        $pendaftar->update([
-                            'biaya_jurusan' => $jurusan->biaya_pendaftaran,
-                            'sisa_pembayaran' => $jurusan->biaya_pendaftaran - $pendaftar->total_terbayar,
-                        ]);
-                    }
-                }
-            }
-
-            // Ambil input dari form, lalu buang semua karakter selain angka
+            // 2. Bersihkan input agar menjadi angka murni (Contoh: 150.000 -> 150000)
             $nominalBersih = preg_replace('/[^0-9]/', '', $request->jumlah_cicilan);
             $jumlahCicilan = (int)$nominalBersih;
-            $sisaPembayaran = $pendaftar->calculateSisaPembayaran();
 
-            // Validasi jumlah cicilan tidak lebih dari sisa pembayaran
-            if ($jumlahCicilan > $sisaPembayaran) {
+            if ($jumlahCicilan < 1) {
+                return back()->withInput()->withErrors(['jumlah_cicilan' => 'Jumlah cicilan minimal Rp 1']);
+            }
+
+            // 3. Hitung total yang sudah APPROVED sebelumnya untuk validasi sisa
+            $totalTerbayarSaatIni = CicilanPembayaran::where('pendaftar_id', $id)
+                ->where('status', 'approved')
+                ->sum('jumlah_cicilan');
+                
+            $sisaPembayaranSaatIni = $pendaftar->biaya_jurusan - $totalTerbayarSaatIni;
+
+            // Validasi agar cicilan tidak lebih dari sisa
+            if ($jumlahCicilan > $sisaPembayaranSaatIni) {
                 DB::rollBack();
                 return back()->withInput()->withErrors([
-                    'jumlah_cicilan' => 'Jumlah cicilan tidak boleh lebih dari sisa pembayaran (Rp ' . number_format($sisaPembayaran, 0, ',', '.') . ')'
+                    'jumlah_cicilan' => 'Jumlah tidak boleh melebihi sisa (Maks: Rp ' . number_format($sisaPembayaranSaatIni, 0, ',', '.') . ')'
                 ]);
             }
 
-            // Simpan cicilan
+            // 4. Simpan Cicilan dengan status 'approved' agar langsung memotong saldo
             CicilanPembayaran::create([
                 'pendaftar_id' => $pendaftar->id,
                 'jumlah_cicilan' => $jumlahCicilan,
                 'tanggal_pembayaran' => now(),
                 'keterangan' => $request->keterangan,
-                'status' => 'pending',
+                'status' => 'approved', 
             ]);
 
-            // Refresh model untuk mendapatkan data terbaru dari database
-            $pendaftar->refresh();
-
-            // Update total terbayar dan sisa pembayaran di pendaftar
-            $totalTerbayar = $pendaftar->calculateTotalTerbayar();
-            $sisaBayar = $pendaftar->calculateSisaPembayaran();
-
-            // Tentukan status pembayaran
-            $statusPembayaran = $totalTerbayar >= $pendaftar->biaya_jurusan ? 'lunas' : 'belum_lunas';
+            // 5. Update data Pendaftar (Gunakan query manual untuk menghindari loop/timeout)
+            $totalTerbayarBaru = $totalTerbayarSaatIni + $jumlahCicilan;
+            $sisaBayarBaru = $pendaftar->biaya_jurusan - $totalTerbayarBaru;
+            $statusPembayaran = $sisaBayarBaru <= 0 ? 'lunas' : 'belum_lunas';
 
             $pendaftar->update([
-                'total_terbayar' => $totalTerbayar,
-                'sisa_pembayaran' => $sisaBayar,
+                'total_terbayar' => $totalTerbayarBaru,
+                'sisa_pembayaran' => $sisaBayarBaru,
                 'status_pembayaran' => $statusPembayaran,
                 'tanggal_pembayaran' => now(),
             ]);
 
             DB::commit();
 
-            $pesan = 'Cicilan Rp ' . number_format($jumlahCicilan, 0, ',', '.') . ' berhasil dicatat';
-            if ($totalTerbayar >= $pendaftar->biaya_jurusan) {
-                $pesan .= '. Pembayaran sudah LUNAS!';
-            }
-
             return redirect()->route('bendahara.pembayaran.show', $id)
-                ->with('success', $pesan);
+                ->with('success', 'Cicilan Rp ' . number_format($jumlahCicilan, 0, ',', '.') . ' berhasil dicatat.');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors(['error' => 'Gagal menyimpan cicilan: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
         }
     }
-
     /**
      * Menampilkan riwayat cicilan
      */
@@ -213,4 +198,35 @@ class CicilanController extends Controller
             return back()->with('error', 'Gagal menghapus cicilan: ' . $e->getMessage());
         }
     }
+ public function cetakKwitansiCicilan($pendaftar_id, $cicilan_id)
+{
+    $pendaftar = Pendaftar::with('siswa')->findOrFail($pendaftar_id);
+    $cicilanUtama = CicilanPembayaran::findOrFail($cicilan_id);
+
+    // Ambil semua cicilan approved untuk riwayat di bawah kwitansi
+    $riwayatCicilan = CicilanPembayaran::where('pendaftar_id', $pendaftar_id)
+        ->where('status', 'approved')
+        ->orderBy('tanggal_pembayaran', 'asc')
+        ->get();
+
+    $totalBayarHinggaKini = 0;
+    foreach ($riwayatCicilan as $rc) {
+        $totalBayarHinggaKini += $rc->jumlah_cicilan;
+        if ($rc->id == $cicilan_id) break; 
+    }
+
+    $data = [
+        'pendaftar' => $pendaftar,
+        'cicilanUtama' => $cicilanUtama,
+        'riwayatCicilan' => $riwayatCicilan,
+        'sisaPembayaran' => $pendaftar->biaya_jurusan - $totalBayarHinggaKini,
+        'tanggal_cetak' => now()->format('d F Y'),
+    ];
+
+    // Menggunakan library DomPDF (Barryvdh)
+    $pdf = \PDF::loadView('bendahara.cicilan.kwitansi_pdf', $data);
+    
+    // Gunakan stream() agar membuka tab baru sebagai PDF, bukan HTML halaman web biasa
+    return $pdf->stream('Kwitansi-' . $pendaftar->siswa->nama_siswa . '.pdf');
+}
 }

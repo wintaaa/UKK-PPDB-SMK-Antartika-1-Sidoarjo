@@ -44,6 +44,25 @@
                                 <span class="badge bg-warning text-dark" style="font-size: 1rem;">BELUM LUNAS</span>
                             @endif
                         </div>
+                        @foreach($cicilanList as $cicilan) 
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ \Carbon\Carbon::parse($cicilan->tanggal_pembayaran)->format('d/m/Y H:i') }}</td>
+                                <td>Rp {{ number_format($cicilan->jumlah_cicilan, 0, ',', '.') }}</td>
+                                
+                               <<td class="text-center">
+                                    @if($cicilan->status == 'approved')
+                                       <a href="{{ route('bendahara.cicilan.cetak', ['pendaftar' => $pendaftar->id, 'cicilan' => $cicilan->id]) }}" 
+                                        class="btn btn-primary btn-sm" 
+                                        target="_blank">
+                                        <i class="fas fa-print"></i> Cetak
+                                        </a>
+                                    @else
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
                     </div>
                 </div>
             </div>
