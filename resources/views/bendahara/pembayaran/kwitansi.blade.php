@@ -89,10 +89,10 @@
         <div class="info-section">
             <p><strong>Telah terima dari:</strong> {{ $pendaftar->siswa->nama_siswa ?? '-' }}</p>
             <p><strong>Untuk pembayaran:</strong> Biaya Pendaftaran PPDB</p>
-            <p><strong>Jumlah uang:</strong> Rp {{ number_format($pendaftar->biaya_pendaftaran, 0, ',', '.') }}</p>
+            <p><strong>Jumlah uang:</strong> Rp {{ number_format($pendaftar->total_terbayar, 0, ',', '.') }}</p>
 
             <div class="terbilang">
-                Terbilang: **{{ ucwords(\App\Helpers\NumberToWords::toWords($pendaftar->biaya_pendaftaran)) }} Rupiah**
+                Terbilang: **{{ ucwords(\App\Helpers\NumberToWords::toWords($pendaftar->total_terbayar)) }} Rupiah**
             </div>
         </div>
 

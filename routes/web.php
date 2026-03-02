@@ -75,6 +75,7 @@ Route::middleware('auth')->prefix('bendahara')->name('bendahara.')->group(functi
     Route::get('/pembayaran/{pendaftar}/form', [PembayaranController::class, 'show'])->name('pembayaran.show');
     Route::post('/pembayaran/{pendaftar}/proses', [PembayaranController::class, 'prosesPembayaran'])->name('pembayaran.proses');
     Route::post('/pembayaran/{pendaftar}/proses-refund', [PembayaranController::class, 'prosesRefund'])->name('pembayaran.refund');
+    Route::get('/pembayaran/{pendaftar}/kwitansi', [PembayaranController::class, 'cetakKwitansi'])->name('pembayaran.kwitansi');
 
     // GRUP CICILAN & KWITANSI
     Route::prefix('cicilan')->name('cicilan.')->group(function () {

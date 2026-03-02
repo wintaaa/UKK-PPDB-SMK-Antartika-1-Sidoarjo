@@ -15,12 +15,14 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Buat user untuk peran Ketua/Admin
-        User::create([
-            'name' => 'Admin PPDB',
-            'email' => 'admin@smk-antartika.sch.id',
-            'password' => Hash::make('password'),
-            'role' => 'ketua',
-        ]);
+        User::updateOrCreate(
+    ['email' => 'admin@smk-antartika.sch.id'], // Kunci pengecekan
+    [
+        'name' => 'Admin PPDB',
+        'password' => Hash::make('password'), // Password akan diperbarui
+        'role' => 'ketua'
+    ]
+);
         
         // Buat user untuk peran Panitia
         User::create([
